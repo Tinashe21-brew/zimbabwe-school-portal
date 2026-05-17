@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Elite Academy Pro | Complete Portal with Student Logins</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --primary:#0f3b2c; --primary-light:#1e6b4c; --primary-dark:#082820;
+            --accent:#d4af37; --accent-light:#e8c547; --success:#10b981;
+            --danger:#ef4444; --warning:#f59e0b; --info:#3b82f6;
+            --bg-light:#f8fafc; --card:#ffffff; --text-dark:#111827; --text-light:#6b7280;
+            --border:#e2e8f0; --shadow-sm:0 2px 8px rgba(0,0,0,0.04); --shadow-md:0 8px 24px rgba(0,0,0,0.08);
+            --shadow-xl:0 20px 35px -12px rgba(0,0,0,0.15); --transition:all 0.2s ease;
+        }
+        body{font-family:'Inter',sans-serif;background:var(--bg-light);}
+        .login-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--primary-dark),var(--primary));position:relative}
+        .login-container{background:white;border-radius:32px;padding:44px 40px;max-width:480px;width:90%;box-shadow:var(--shadow-xl);animation:fadeUp 0.5s}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .logo-badge{width:75px;height:75px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:24px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+        .form-group{margin-bottom:1.2rem}
+        .form-group input,.form-group select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:16px;font-size:1rem}
+        .btn{padding:12px 24px;border:none;border-radius:40px;font-weight:600;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:8px;font-size:1rem}
+        .btn-primary{background:linear-gradient(105deg,var(--primary),var(--primary-light));color:white;width:100%;justify-content:center}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,59,44,0.3)}
+        .dashboard-wrapper{display:flex;min-height:100vh}
+        .sidebar{width:280px;background:linear-gradient(180deg,var(--primary-dark),var(--primary));padding:28px 16px;position:fixed;height:100vh;overflow-y:auto;box-shadow:4px 0 20px rgba(0,0,0,0.08);z-index:50}
+        .sidebar-link{display:flex;align-items:center;gap:12px;padding:12px 16px;color:rgba(255,255,255,0.75);border-radius:14px;margin-bottom:6px;cursor:pointer;width:100%;background:none;border:none;font-weight:500;font-size:0.95rem}
+        .sidebar-link.active,.sidebar-link:hover{background:rgba(212,175,55,0.2);color:white}
+        .sidebar-link.active{background:var(--accent);color:var(--primary-dark);font-weight:600}
+        .main-content{margin-left:280px;padding:28px 32px;width:100%}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-bottom:32px}
+        .stat-card{background:var(--card);border-radius:24px;padding:22px;box-shadow:var(--shadow-sm);border-left:5px solid var(--primary);transition:all 0.2s}
+        .stat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+        .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px;margin-bottom:30px}
+        .menu-card{background:white;border-radius:20px;padding:24px 12px;text-align:center;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow-sm)}
+        .menu-card:hover{transform:translateY(-5px);background:var(--primary);color:white}
+        .content-panel{background:white;border-radius:28px;padding:28px;box-shadow:var(--shadow-sm);margin-bottom:24px}
+        .table-responsive{overflow-x:auto}
+        .table{width:100%;border-collapse:collapse}
+        .table th,.table td{padding:14px 12px;border-bottom:1px solid var(--border);text-align:left}
+        .badge{padding:4px 12px;border-radius:50px;font-size:0.75rem;font-weight:600}
+        .badge-success{background:#d1fae5;color:#065f46}
+        .badge-warning{background:#fef9c3;color:#854d0e}
+        .badge-danger{background:#fee2e2;color:#991b1b}
+        .avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:bold}
+        .zim-hero{background:linear-gradient(120deg,var(--primary),var(--accent));padding:24px 28px;border-radius:28px;color:white;margin-bottom:32px}
+        .premium-badge{background:gold;color:var(--primary-dark);padding:2px 12px;border-radius:30px;font-size:0.7rem;margin-left:10px}
+        @media (max-width:768px){.sidebar{transform:translateX(-100%);position:fixed}.main-content{margin-left:0;padding:20px}}
+        .fade-in{animation:fadeUp 0.5s}
+        .chart-container{background:#f1f5f9;border-radius:20px;padding:16px;margin-top:20px;height:280px}
+        .book-card{background:#fef9e6;border-radius:16px;padding:14px;transition:0.2s;border-left:4px solid var(--accent);margin-bottom:10px}
+        .ai-prediction{background:linear-gradient(135deg,#e0f2fe,#f1f5f9);border-radius:18px;padding:16px;margin:12px 0}
+        .transport-card{background:#f0fdf4;border-radius:16px;padding:16px;margin-bottom:12px;border-left:4px solid var(--success)}
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ==================== STUDENT LOGINS (FROM YOUR WORKING FILE) ====================
+    const STUDENT_LOGINS = [
+        { email: "tendai.moyo@student.zw", password: "Tendai@2025", name: "Tendai Moyo", form: "4A", reg: "ZIM001", fees: 150, score: 78, boarding: "Day" },
+        { email: "kudzai.ncube@student.zw", password: "Kudzai@2025", name: "Kudzai Ncube", form: "4B", reg: "ZIM002", fees: 0, score: 85, boarding: "Boarding" },
+        { email: "rutendo.sibanda@student.zw", password: "Rutendo@2025", name: "Rutendo Sibanda", form: "3A", reg: "ZIM003", fees: 500, score: 69, boarding: "Day" },
+        { email: "tatenda.maringe@student.zw", password: "Tatenda@2025", name: "Tatenda Maringe", form: "2C", reg: "ZIM004", fees: 200, score: 91, boarding: "Boarding" },
+        { email: "nyasha.dube@student.zw", password: "Nyasha@2025", name: "Nyasha Dube", form: "1B", reg: "ZIM005", fees: 80, score: 74, boarding: "Day" },
+        { email: "panashe.zhou@student.zw", password: "Panashe@2025", name: "Panashe Zhou", form: "4A", reg: "ZIM006", fees: 320, score: 66, boarding: "Boarding" },
+        { email: "ruvarashe.makoni@student.zw", password: "Ruva@2025", name: "Ruvarashe Makoni", form: "3C", reg: "ZIM007", fees: 45, score: 82, boarding: "Day" },
+        { email: "tadiwa.chikomo@student.zw", password: "Tadiwa@2025", name: "Tadiwa Chikomo", form: "2A", reg: "ZIM008", fees: 210, score: 71, boarding: "Boarding" }
+    ];
+
+    // Generate additional students for each class (for teacher views)
+    const allClasses = ["1A","1B","1C","2A","2B","2C","3A","3B","3C","4A","4B","4C"];
+    const firstNames = ["Tendai","Kudzai","Rutendo","Tatenda","Rumbi","Nyasha","Anesu","Takunda","Munashe","Tanaka","Chipo","Farai","Simba","Tafadzwa","Vimbai","Rudo","Nyaradzo","Panashe","Makanaka","Tinotenda"];
+    const lastNames = ["Moyo","Ncube","Sibanda","Dube","Chikwava","Makoni","Zhou","Gumbo","Mudzingwa","Banda","Marowa","Chikomo","Mutsvairo","Mhishi","Nhapi"];
+    
+    const generateFullStudents = () => {
+        let students = [...STUDENT_LOGINS.map((s,idx) => ({ 
+            id: idx+1, firstName: s.name.split(' ')[0], lastName: s.name.split(' ')[1], 
+            form: s.form, feeBalance: s.fees, feeStatus: s.fees === 0 ? "paid" : (s.fees < 200 ? "partial" : "pending"),
+            regNumber: s.reg, avgScore: s.score, email: s.email, password: s.password, boarding: s.boarding
+        }))];
+        let id = STUDENT_LOGINS.length + 1;
+        for(let cls of allClasses){
+            let needed = cls.startsWith("4") ? 20 : (cls.startsWith("3") ? 18 : 16);
+            for(let i=0; i<needed && students.length < 280; i++){
+                let fn = firstNames[Math.floor(Math.random()*firstNames.length)];
+                let ln = lastNames[Math.floor(Math.random()*lastNames.length)];
+                let feeBal = Math.floor(Math.random()*500);
+                students.push({
+                    id: id++, firstName: fn, lastName: ln, form: cls, feeBalance: feeBal,
+                    feeStatus: feeBal === 0 ? "paid" : (feeBal < 200 ? "partial" : "pending"),
+                    regNumber: `ZIM${2000+id}`, avgScore: Math.floor(55 + Math.random()*40),
+                    email: `${fn.toLowerCase()}${id}@student.zw`, password: `Student${id}@2025`,
+                    boarding: Math.random() > 0.6 ? "Boarding" : "Day"
+                });
+            }
+        }
+        return students;
+    };
+    const STUDENTS_DB = generateFullStudents();
+
+    // TEACHERS
+    const TEACHERS_DB = allClasses.map((cls, idx) => ({
+        id: idx+1, email: `teacher.${cls.toLowerCase()}@academy.zw`, password: `Teacher${cls}@2025`,
+        name: `Mr./Ms. ${["Takunda","Tendai","Ruth","John","Farai","Lawrence","Gladys","Simba","Vimbai","Tanaka","Memory","Chipo"][idx % 12]} ${cls}`,
+        subject: ["Math","English","Shona","Science","History","Geo","ICT","Business","Arts","Physics","Chem","Bio"][idx % 12],
+        form: cls, salary: 580, role: "teacher", phone: `+26377${100000+idx}`
+    }));
+
+    // TRANSPORT DATA
+    const VEHICLES = [
+        { id:1, type: "Bus (52 seater)", reg: "AEC 1234", driver: "Mr. T. Moyo", route: "Township - CBD - School", capacity: 52 },
+        { id:2, type: "Hiace Kombi", reg: "AEC 2345", driver: "Mr. P. Sibanda", route: "Hatcliffe - Glen View - School", capacity: 15 },
+        { id:3, type: "Hiace Kombi", reg: "AEC 3456", driver: "Mrs. R. Ncube", route: "Budiriro - Kuwadzana - School", capacity: 15 },
+        { id:4, type: "Hiace Kombi", reg: "AEC 4567", driver: "Mr. L. Dube", route: "Mbare - Highfield - School", capacity: 15 }
+    ];
+
+    // Library Books
+    const generateBooks = () => { let books=[]; for(let i=1;i<=5000;i++) books.push({ id:i, title:`Book ${i}`, author:`Author ${i%100}`, available:true, isbn:`ISBN${i}` }); return books; };
+    const LIBRARY_BOOKS = generateBooks();
+    let globalAssignments = [];
+
+    const getStudentsByClass = (className) => STUDENTS_DB.filter(s => s.form === className);
+    const getAIPrediction = (studentsList) => {
+        if(studentsList.length === 0) return { currentAvg: "0", predictedNext: "0", insight: "No data" };
+        const avg = studentsList.reduce((a,b)=>a+b.avgScore,0)/studentsList.length;
+        const improvement = (Math.random() * 10) - 2;
+        const predicted = Math.min(100, Math.max(40, avg + improvement));
+        return { currentAvg: avg.toFixed(1), predictedNext: predicted.toFixed(1), insight: improvement>0 ? "Upward trend expected 📈" : "Needs intervention 📉" };
+    };
+    const getTopPerformers = (students) => [...students].sort((a,b)=>b.avgScore - a.avgScore).slice(0,5);
+
+    // ==================== LOGIN PAGE ====================
+    const LoginPage = ({ onLogin }) => {
+        const [form, setForm] = useState({ email: '', password: '', role: 'student' });
+        const [error, setError] = useState('');
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            setError('');
+            if(form.role === 'admin' && form.email === 'admin@elite.zw' && form.password === 'Admin@2025'){
+                onLogin({ name: 'School Administrator', role: 'admin' });
+            } 
+            else if(form.role === 'teacher'){
+                const teacher = TEACHERS_DB.find(t => t.email === form.email && t.password === form.password);
+                if(teacher) onLogin({ ...teacher, role: 'teacher' });
+                else setError('Invalid teacher credentials. Use teacher.1a@academy.zw / Teacher1A@2025');
+            } 
+            else if(form.role === 'student'){
+                const student = STUDENT_LOGINS.find(s => s.email === form.email && s.password === form.password);
+                if(student) {
+                    onLogin({ ...student, role: 'student', firstName: student.name.split(' ')[0], lastName: student.name.split(' ')[1] });
+                } else setError('Invalid student login. Use credentials from the list below.');
+            } 
+            else setError('Invalid role');
+        };
+        return (
+            <div className="login-wrapper">
+                <div className="login-container">
+                    <div className="logo-badge">🇿🇼</div>
+                    <h1 style={{textAlign:'center', fontSize:'1.8rem'}}>Elite Academy Pro</h1>
+                    <p style={{textAlign:'center', marginBottom:'24px', color:'var(--text-light)'}}>Zimbabwe's Premier School Portal</p>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group"><label>Role</label><select value={form.role} onChange={e=>setForm({...form,role:e.target.value})}><option value="student">🎓 Student</option><option value="teacher">👨‍🏫 Teacher</option><option value="admin">⚙️ Administrator</option></select></div>
+                        <div className="form-group"><label>Email</label><input type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="Enter your email" required/></div>
+                        <div className="form-group"><label>Password</label><input type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} placeholder="Enter your password" required/></div>
+                        {error && <div style={{color:'var(--danger)', fontSize:'0.8rem', marginBottom:'12px'}}>{error}</div>}
+                        <button type="submit" className="btn btn-primary"><i className="fas fa-key"></i> Access Portal</button>
+                    </form>
+                    <div style={{marginTop:'20px', fontSize:'0.7rem', background:'#f1f5f9', padding:'15px', borderRadius:'16px'}}>
+                        <strong>🔑 STUDENT LOGINS:</strong><br/>
+                        tendai.moyo@student.zw / Tendai@2025 (Form 4A)<br/>
+                        kudzai.ncube@student.zw / Kudzai@2025 (Form 4B)<br/>
+                        rutendo.sibanda@student.zw / Rutendo@2025 (Form 3A)<br/>
+                        <strong>👑 ADMIN:</strong> admin@elite.zw / Admin@2025<br/>
+                        <strong>👨‍🏫 TEACHER:</strong> teacher.1a@academy.zw / Teacher1A@2025
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    // ==================== LIBRARY MODULE ====================
+    const LibraryModule = ({ canUpload=false }) => {
+        const [search, setSearch] = useState('');
+        const [newBook, setNewBook] = useState({title:'', author:''});
+        const [books, setBooks] = useState(LIBRARY_BOOKS);
+        const filtered = books.filter(b => b.title.toLowerCase().includes(search.toLowerCase()));
+        const handleUpload = () => {
+            if(newBook.title && canUpload){
+                setBooks([{ id:books.length+1, title:newBook.title, author:newBook.author, available:true, isbn:`NEW${Date.now()}` }, ...books]);
+                setNewBook({title:'', author:''});
+                alert("✅ Book added! Notification sent to all students and teachers.");
+            } else if(!canUpload) alert("Only admin can upload books.");
+        };
+        return (
+            <div className="content-panel">
+                <h2><i className="fas fa-book-open"></i> Digital Library {canUpload && <span className="premium-badge">ADMIN</span>}</h2>
+                <p>📚 Total Books: {books.length} | Available: {books.filter(b=>b.available).length}</p>
+                <div className="form-group"><input type="text" placeholder="🔍 Search by title..." value={search} onChange={e=>setSearch(e.target.value)} style={{width:'100%', padding:'12px'}}/></div>
+                {canUpload && (
+                    <div style={{background:'#f1f5f9', borderRadius:'20px', padding:'16px', marginBottom:'20px'}}>
+                        <h4>📤 Upload New Book</h4>
+                        <div style={{display:'flex', gap:'12px', flexWrap:'wrap'}}>
+                            <input placeholder="Book Title" value={newBook.title} onChange={e=>setNewBook({...newBook,title:e.target.value})} style={{flex:1}}/>
+                            <input placeholder="Author" value={newBook.author} onChange={e=>setNewBook({...newBook,author:e.target.value})} style={{flex:1}}/>
+                            <button className="btn btn-primary" onClick={handleUpload}>+ Upload</button>
+                        </div>
+                    </div>
+                )}
+                <div className="table-responsive" style={{maxHeight:'400px', overflowY:'auto'}}>
+                    <table className="table"><thead><tr><th>ID</th><th>Title</th><th>Author</th><th>Status</th></tr></thead>
+                    <tbody>{filtered.slice(0,80).map(b=><tr key={b.id}><td>{b.id}</td><td>{b.title}</td><td>{b.author}</td><td><span className="badge badge-success">Available</span></td></tr>)}</tbody></table>
+                    {filtered.length > 80 && <p>... and {filtered.length-80} more books</p>}
+                </div>
+            </div>
+        );
+    };
+
+    // ==================== TRANSPORT MODULE ====================
+    const TransportModule = () => (
+        <div className="content-panel">
+            <h2><i className="fas fa-bus"></i> School Transport System</h2>
+            <p>🚌 Fleet: 1 Bus + 3 Hiace Kombis | Safe & Reliable Transport</p>
+            <div className="table-responsive">
+                <table className="table">
+                    <thead><tr><th>Vehicle</th><th>Registration</th><th>Driver</th><th>Route</th><th>Capacity</th></tr></thead>
+                    <tbody>{VEHICLES.map(v => <tr key={v.id}><td>{v.type}</td><td>{v.reg}</td><td>{v.driver}</td><td>{v.route}</td><td>{v.capacity}</td></tr>)}</tbody>
+                </table>
+            </div>
+        </div>
+    );
+
+    // ==================== STUDENT DASHBOARD (using your working file design) ====================
+    const StudentDashboard = ({ user, onLogout }) => {
+        const [activeTab, setActiveTab] = useState('overview');
+        const student = user;
+        const classAssignments = globalAssignments.filter(a => a.className === student.form);
+        const allStudentsInClass = getStudentsByClass(student.form);
+        const rank = [...allStudentsInClass].sort((a,b)=>b.avgScore - a.avgScore).findIndex(s => s.email === student.email) + 1;
+        
+        return (
+            <div className="dashboard-wrapper">
+                <div className="sidebar">
+                    <div style={{textAlign:'center', padding:'20px 0', color:'white'}}>
+                        <div className="avatar" style={{margin:'0 auto 15px', width:'60px', height:'60px', fontSize:'1.5rem'}}>🎓</div>
+                        <h3>{student.name}</h3>
+                        <p style={{fontSize:'0.8rem', opacity:0.8}}>{student.form} | {student.reg}</p>
+                    </div>
+                    <button className={`sidebar-link ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}><i className="fas fa-home"></i> Overview</button>
+                    <button className={`sidebar-link ${activeTab === 'assignments' ? 'active' : ''}`} onClick={() => setActiveTab('assignments')}><i className="fas fa-tasks"></i> Assignments</button>
+                    <button className={`sidebar-link ${activeTab === 'results' ? 'active' : ''}`} onClick={() => setActiveTab('results')}><i className="fas fa-chart-line"></i> Results</button>
+                    <button className={`sidebar-link ${activeTab === 'transport' ? 'active' : ''}`} onClick={() => setActiveTab('transport')}><i className="fas fa-bus"></i> Transport</button>
+                    <button className={`sidebar-link ${activeTab === 'library' ? 'active' : ''}`} onClick={() => setActiveTab('library')}><i className="fas fa-book"></i> Library</button>
+                    <button className="sidebar-link" onClick={onLogout} style={{marginTop:'40px'}}><i className="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+                <div className="main-content">
+                    {activeTab === 'overview' && (
+                        <>
+                            <div className="zim-hero">
+                                <h2>Welcome back, {student.name}! 🇿🇼</h2>
+                                <p>Form {student.form} • Reg: {student.reg} • Class Rank: #{rank} out of {allStudentsInClass.length}</p>
+                            </div>
+                            <div className="stats-grid">
+                                <div className="stat-card"><div style={{fontSize:'2rem'}}>📚</div><div>Average Score</div><div style={{fontSize:'1.8rem', fontWeight:800}}>{student.score}%</div></div>
+                                <div className="stat-card"><div style={{fontSize:'2rem'}}>💰</div><div>Fee Balance</div><div style={{fontSize:'1.5rem', fontWeight:700}}>${student.fees}</div><div className={`badge ${student.fees === 0 ? 'badge-success' : 'badge-warning'}`}>{student.fees === 0 ? 'Paid ✓' : 'Pending'}</div></div>
+                                <div className="stat-card"><div style={{fontSize:'2rem'}}>🏆</div><div>Class Position</div><div style={{fontSize:'1.8rem', fontWeight:800}}>#{rank}</div></div>
+                            </div>
+                            <div className="ai-prediction">
+                                <i className="fas fa-robot"></i> <strong>AI Academic Insight:</strong> Your current performance is {student.score}%. 
+                                {student.score >= 80 ? " Excellent work! Keep maintaining this standard. 🎯" : 
+                                 student.score >= 60 ? " Good progress! Focus on improving weaker subjects. 📈" : 
+                                 " Dedicate more time to studies. You have great potential! 💪"}
+                            </div>
+                            <div className="content-panel">
+                                <h3>📌 Quick Actions</h3>
+                                <div className="menu-grid">
+                                    <div className="menu-card" onClick={() => setActiveTab('assignments')}><div style={{fontSize:'2rem'}}>📝</div><div>View Assignments</div></div>
+                                    <div className="menu-card" onClick={() => setActiveTab('results')}><div style={{fontSize:'2rem'}}>📊</div><div>Check Results</div></div>
+                                    <div className="menu-card" onClick={() => setActiveTab('transport')}><div style={{fontSize:'2rem'}}>🚌</div><div>Transport Info</div></div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                    {activeTab === 'assignments' && (
+                        <div className="content-panel">
+                            <h2><i className="fas fa-tasks"></i> My Assignments</h2>
+                            {classAssignments.length === 0 ? 
+                                <p style={{textAlign:'center', padding:'40px', color:'var(--text-light)'}}>📭 No pending assignments. Enjoy your break!</p> :
+                                classAssignments.map(a => <div key={a.id} className="book-card"><b>{a.title}</b> - {a.subject}<br/>Due: {a.dueDate}<br/>{a.description}</div>)
+                            }
+                        </div>
+                    )}
+                    {activeTab === 'results' && (
+                        <div className="content-panel">
+                            <h2><i className="fas fa-chart-line"></i> Academic Results</h2>
+                            <div className="table-responsive">
+                                <table className="table">
+                                    <thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Status</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Mathematics</td><td>{student.score - 2}</td><td>{student.score - 2 >= 80 ? 'A' : student.score - 2 >= 70 ? 'B' : 'C'}</td><td><span className="badge badge-success">Pass</span></td></tr>
+                                        <tr><td>English</td><td>{student.score + 3}</td><td>{student.score + 3 >= 80 ? 'A' : 'B'}</td><td><span className="badge badge-success">Pass</span></td></tr>
+                                        <tr><td>Shona</td><td>{student.score + 5}</td><td>{student.score + 5 >= 80 ? 'A' : 'B'}</td><td><span className="badge badge-success">Pass</span></td></tr>
+                                        <tr><td>Science</td><td>{student.score - 1}</td><td>{student.score - 1 >= 80 ? 'A' : 'B'}</td><td><span className="badge badge-success">Pass</span></td></tr>
+                                        <tr><td>History</td><td>{student.score}</td><td>{student.score >= 80 ? 'A' : 'B'}</td><td><span className="badge badge-success">Pass</span></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                    {activeTab === 'transport' && <TransportModule />}
+                    {activeTab === 'library' && <LibraryModule canUpload={false} />}
+                </div>
+            </div>
+        );
+    };
+
+    // ==================== TEACHER DASHBOARD ====================
+    const TeacherDashboard = ({ user, onLogout }) => {
+        const [selectedClass, setSelectedClass] = useState(user.form);
+        const [showForm, setShowForm] = useState(false);
+        const [newAssignment, setNewAssignment] = useState({ title: '', dueDate: '', description: '' });
+        const studentsInClass = getStudentsByClass(selectedClass);
+        const top5 = getTopPerformers(studentsInClass);
+        const ai = getAIPrediction(studentsInClass);
+        
+        const handleCreateAssignment = () => {
+            if(newAssignment.title && newAssignment.dueDate){
+                globalAssignments.push({ id: Date.now(), teacherId: user.id, className: selectedClass, subject: user.subject, ...newAssignment });
+                setNewAssignment({ title: '', dueDate: '', description: '' });
+                setShowForm(false);
+                alert(`✅ Assignment "${newAssignment.title}" created for ${selectedClass}`);
+            } else alert("Please fill title and due date");
+        };
+        
+        return (
+            <div className="dashboard-wrapper">
+                <div className="sidebar"><div style={{color:'white', padding:'20px 0', fontWeight:'bold'}}>👨‍🏫 {user.name}</div>
+                <button className="sidebar-link active">Dashboard</button>
+                <button className="sidebar-link" onClick={() => document.getElementById('teacherLib')?.scrollIntoView({behavior:'smooth'})}>Library</button>
+                <button className="sidebar-link" onClick={onLogout}>Logout</button></div>
+                <div className="main-content">
+                    <div className="zim-hero"><h2>Welcome, {user.name}</h2><p>{user.subject} Teacher | Form {user.form}</p></div>
+                    <div className="content-panel"><h3>Select Class</h3><div style={{display:'flex',flexWrap:'wrap',gap:'10px'}}>{allClasses.map(c => <button key={c} onClick={()=>setSelectedClass(c)} style={{padding:'8px 18px',borderRadius:'40px',border:'none',background:selectedClass===c?'var(--accent)':'#e2e8f0',cursor:'pointer'}}>{c}</button>)}</div></div>
+                    <div className="stats-grid"><div className="stat-card"><div>👥 Students</div><div style={{fontSize:'2rem'}}>{studentsInClass.length}</div></div><div className="stat-card"><div>📊 Avg Score</div><div style={{fontSize:'2rem'}}>{ai.currentAvg}%</div></div><div className="stat-card"><div>🏆 Top Student</div><div>{top5[0]?.firstName || 'N/A'}</div></div></div>
+                    <div className="content-panel"><h3>⭐ Top 5 Performers - {selectedClass}</h3><table className="table"><thead><tr><th>Name</th><th>Score</th><th>Reg</th></tr></thead><tbody>{top5.map(s=><tr key={s.id}><td>{s.firstName} {s.lastName}</td><td>{s.avgScore}%</td><td>{s.regNumber}</td></tr>)}</tbody></table></div>
+                    <div className="ai-prediction"><i className="fas fa-robot"></i> AI Prediction: Next term forecast → {ai.predictedNext}% ({ai.insight})</div>
+                    <div className="content-panel"><div style={{display:'flex',justifyContent:'space-between'}}><h3>📝 Assignments</h3><button className="btn btn-primary" onClick={()=>setShowForm(!showForm)}>+ Create</button></div>
+                    {showForm && (<div style={{marginTop:'15px'}}><input placeholder="Title" value={newAssignment.title} onChange={e=>setNewAssignment({...newAssignment,title:e.target.value})} style={{width:'100%',marginBottom:'10px',padding:'10px'}}/><textarea placeholder="Description" value={newAssignment.description} onChange={e=>setNewAssignment({...newAssignment,description:e.target.value})} rows="2" style={{width:'100%',marginBottom:'10px',padding:'10px'}}/><input type="date" value={newAssignment.dueDate} onChange={e=>setNewAssignment({...newAssignment,dueDate:e.target.value})} style={{marginBottom:'10px',padding:'10px'}}/><button className="btn btn-primary" onClick={handleCreateAssignment}>Publish</button></div>)}</div>
+                    <div id="teacherLib"><LibraryModule canUpload={false} /></div>
+                </div>
+            </div>
+        );
+    };
+
+    // ==================== ADMIN DASHBOARD ====================
+    const AdminDashboard = ({ user, onLogout }) => {
+        const [section, setSection] = useState('overview');
+        return (
+            <div className="dashboard-wrapper">
+                <div className="sidebar"><div style={{color:'white', padding:'20px 0', fontWeight:'bold'}}>⚙️ Admin Console</div>
+                {['overview','students','teachers','transport','payroll','library'].map(s => <button key={s} className={`sidebar-link ${section===s?'active':''}`} onClick={()=>setSection(s)}><i className={`fas fa-${s==='overview'?'chart-line':s==='students'?'users':s==='teachers'?'chalkboard-user':s==='transport'?'bus':s==='payroll'?'calculator':'book'}`}></i> {s.charAt(0).toUpperCase()+s.slice(1)}</button>)}
+                <button className="sidebar-link" onClick={onLogout}>Logout</button></div>
+                <div className="main-content">
+                    {section==='overview' && <><div className="zim-hero"><h2>Admin Dashboard</h2><p>{STUDENTS_DB.length} Students | {TEACHERS_DB.length} Teachers | 4 Vehicles | 5000+ Books</p></div><div className="stats-grid"><div className="stat-card">👥 Total Students: {STUDENTS_DB.length}</div><div className="stat-card">👨‍🏫 Teachers: {TEACHERS_DB.length}</div><div className="stat-card">📚 Library: 5000+ Books</div><div className="stat-card">🚌 Fleet: 4 Vehicles</div></div></>}
+                    {section==='students' && <div className="content-panel"><h2>All Students</h2><div className="table-responsive"><table className="table"><thead><tr><th>Name</th><th>Form</th><th>Reg</th><th>Score</th><th>Fees</th></tr></thead><tbody>{STUDENTS_DB.slice(0,50).map(s=><tr key={s.id}><td>{s.firstName} {s.lastName}</td><td>{s.form}</td><td>{s.regNumber}</td><td>{s.avgScore}%</td><td>${s.feeBalance}</td></tr>)}</tbody></table></div></div>}
+                    {section==='teachers' && <div className="content-panel"><h2>Teachers</h2>{TEACHERS_DB.map(t=><div key={t.id} style={{padding:'10px',borderBottom:'1px solid #ddd'}}><b>{t.name}</b> - {t.subject} (Form {t.form})<br/><small>{t.email}</small></div>)}</div>}
+                    {section==='transport' && <TransportModule />}
+                    {section==='payroll' && <div className="content-panel"><h2>Staff Payroll</h2><table className="table"><thead><tr><th>Name</th><th>Role</th><th>Salary</th><th>NSSA</th><th>Medical</th><th>Net Pay</th></tr></thead><tbody>{TEACHERS_DB.map(t=>{const nssa=t.salary*0.045, med=t.salary*0.08, net=t.salary-nssa-med-15; return <tr key={t.id}><td>{t.name}</td><td>Teacher</td><td>${t.salary}</td><td>${nssa.toFixed(2)}</td><td>${med.toFixed(2)}</td><td><b>$${net.toFixed(2)}</b></td></tr>;})}</tbody></table></div>}
+                    {section==='library' && <LibraryModule canUpload={true} />}
+                </div>
+            </div>
+        );
+    };
+
+    const StatCard = ({ icon, label, value, change }) => (<div className="stat-card"><div style={{fontSize:'2rem'}}>{icon}</div><div>{label}</div><div style={{fontSize:'1.8rem',fontWeight:800}}>{value}</div>{change && <div style={{fontSize:'0.75rem'}}>{change}</div>}</div>);
+
+    const App = () => {
+        const [user, setUser] = useState(null);
+        if(!user) return <LoginPage onLogin={setUser} />;
+        if(user.role === 'admin') return <AdminDashboard user={user} onLogout={()=>setUser(null)} />;
+        if(user.role === 'teacher') return <TeacherDashboard user={user} onLogout={()=>setUser(null)} />;
+        return <StudentDashboard user={user} onLogout={()=>setUser(null)} />;
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
